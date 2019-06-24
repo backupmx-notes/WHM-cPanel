@@ -1,0 +1,5 @@
+I believe you can check the below log files for backup logs to confirm if the backup completed successfully or not.
+======================================================================================================================================================================================================
+/usr/local/cpanel/logs/cpbackup 
+/usr/local/cpanel/logs/cpbackup_transporter
+==================================================================================================================================
