@@ -1,0 +1,98 @@
+WHM+Tomcat+SSL
+
+
+1) Modify Apache Virtual Hosts with Include Files, You must use the following directory structure to create an include file for domain
+
+Informative:  znetmail.gq [Mydomain-name on whm]
+Informative:  znetmail [myuser_name on whm]
+
+
+#====================================#====================================
+#mkdir -p /etc/apache2/conf.d/userdata/ssl/2_4/znetmail/znetmail.gq/znetmail.conf
+#touch  /etc/apache2/conf.d/userdata/ssl/2_4/znetmail/znetmail.gq/znetmail.conf
+#nano /etc/apache2/conf.d/userdata/ssl/2_4/znetmail/znetmail.gq/znetmail.conf
+#====================================#====================================
+
+Write the below code for proxy ajp whiich is in my case may be diffienet in your case wehre AJP port could be found under file server.xml
+
+#====================================#====================================
+<IfModule proxy_ajp_module>
+ProxyPass "/" "ajp://127.0.0.1:10006/"
+</IfModule>
+#====================================#====================================
+
+Finally, save it.
+
+
+2) Now you need to rebuild the HTTPD, so use the below command, And also restart the HTTPD by using the below command:
+#====================================#====================================
+#/usr/local/cpanel/scripts/rebuildhttpdconf
+#/usr/local/cpanel/scripts/restartsrv_httpd
+#====================================#====================================
+
+
+3) Prepair the SSL Certification and Key file in p12 file, now upload the crt and key over server any localtion in my case [/home/znetmail/tomcat_ssl/] and run below command to get .p12 keystore file.
+
+#====================================#====================================
+openssl pkcs12 -export -in znetmail.crt -inkey znetmail.key -out mycert.p12 -name tomcat
+#====================================#====================================
+
+Informative:  znetmail.crt [ mycrtificat of website znetmail.gq ]
+Informative:  znetmail.key [ mykeyfile of website znetmail.gq ]
+
+
+4) Go to /home/znetmail/ea-tomcat85/conf/ directory, There you should find a server.xml file.
+5) Use the command cat/vi/nano server.xml to view the server.xml file. Find the HTTP/1.1 connector port. It should look something like this:
+
+Find and comment the line as below
+#====================================#====================================
+<!--
+    <Connector port="10005" protocol="HTTP/1.1" connectionTimeout="20000" xpoweredBy="false"/>
+-->
+#====================================#====================================
+
+And append below parameter
+
+#====================================#====================================
+<Connector port="10005" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="10051" />
+<Connector port="10051" protocol="org.apache.coyote.http11.Http11Protocol" SSLEnabled="true" scheme="https" secure="true" sslProtocol="TLS" keystoreFile="/home/znetmail/tomcat_ssl/mycert.p12" keystoreType="PKCS12" keystorePass="12345678"/>
+#====================================#====================================
+
+Informative:  keystorePass="Yourpassword"
+Informative:  keystoreFile="/home/znetmail/tomcat_ssl/mycert.p12 [location of .p12 file ]
+Informative:  redirectPort="10051" [SSL redirection port always use new like 10052 or 10053 if any tomcat running on it already]
+
+
+6) Finally restart the tomcat server using command  [/scripts/ea-tomcat85 all restart ]
+
+#====================================#====================================
+/scripts/ea-tomcat85 all restart
+#====================================#====================================
+
+check the website over broser https://znetmail.gq
+
+If you want to rediect the domain to httpd autometicaly then follow below steps.
+
+1) Go to /home/znetmail/ea-tomcat85/conf/ directory, There you should find a server.xml file.
+2) Use the command cat/vi/nano web.xml to view the server.xml file. Find the <web-app> </web-app>. It should look something like this and appned belows parameter
+
+#====================================#====================================
+<security-constraint>
+ <web-resource-collection>
+ <web-resource-name>Protected Context</web-resource-name>
+ <url-pattern>/*</url-pattern>
+ </web-resource-collection>
+ <!-- auth-constraint goes here if you requre authentication -->
+ <user-data-constraint>
+ <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+ </user-data-constraint>
+ </security-constraint>
+</web-app>
+#====================================#====================================
+
+
+3) Finally restart the tomcat server using command  [/scripts/ea-tomcat85 all restart ]
+
+#====================================#====================================
+/scripts/ea-tomcat85 all restart
+#====================================#====================================
