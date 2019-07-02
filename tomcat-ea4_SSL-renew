@@ -1,0 +1,51 @@
+What to do if i need to get free SSL or premimum ssl for my domain
+
+
+1) Modify this flie [ /etc/apache2/conf.d/userdata/ssl/2_4/znetmail/znetmail.gq/znetmail.conf ]
+
+Your file
+#====================================#====================================
+<IfModule proxy_ajp_module>
+ProxyPass "/" "ajp://127.0.0.1:10006/"
+</IfModule>
+#====================================#====================================
+
+Modified file
+#====================================#====================================
+<IfModule proxy_ajp_module>
+ProxyPass "/demo" "ajp://127.0.0.1:10006/demo"
+</IfModule>
+#====================================#====================================
+Finally, save it.
+
+2) Now you need to rebuild the HTTPD, so use the below command, And also restart the HTTPD by using the below command:
+#====================================#====================================
+#/usr/local/cpanel/scripts/rebuildhttpdconf
+#/usr/local/cpanel/scripts/restartsrv_httpd
+#====================================#====================================
+
+Now Auto renew the ssl from yourr whm,once you have ssl then follow the steps again.
+
+3) Remove old p12 file from locaton [/home/znetmail/tomcat_ssl/] and Prepair the SSL Certification and Key file again in .p12 file, now upload the crt and key over server any localtion in my case [/home/znetmail/tomcat_ssl/] and run below command to get .p12 keystore file.
+
+#====================================#====================================
+openssl pkcs12 -export -in znetmail.crt -inkey znetmail.key -out mycert.p12 -name tomcat
+#====================================#====================================
+
+Informative:  znetmail.crt [ mycrtificat of website znetmail.gq ]
+Informative:  znetmail.key [ mykeyfile of website znetmail.gq ]
+
+4) Onece all done revert your proxy rules 
+
+
+#====================================#====================================
+<IfModule proxy_ajp_module>
+ProxyPass "/" "ajp://127.0.0.1:10006/"
+</IfModule>
+#====================================#====================================
+
+5) Finally restart the tomcat server using command  [/scripts/ea-tomcat85 all restart ]
+
+#====================================#====================================
+/scripts/ea-tomcat85 all restart
+#====================================#====================================
