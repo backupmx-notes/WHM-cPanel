@@ -1,0 +1,56 @@
+Mydomain : "demotomcat.tk" & Myusename: "demotomcat" check your and replace in your case
+
+1) Build your web app znetlive_app.war file for example purposes. Rename it to znetlive_app.zip and upload over the server by login to cpanel.
+2) Upload in your server go to the /home/user-name/ea-tomcat85/webapps/ROOT/ location and unzip the file znetlive_app.zip.
+4) Go to /home/demotomcat/ea-tomcat85/conf/ directory, There you should find a server.xml file.
+5) Use the command cat/vi/nano server.xml to view the server.xml file. Find the Ajp/1.3 connector port. It should look something like this:
+
+#====================================#====================================
+<Connector port="10003" protocol="AJP/1.3" redirectPort="10002"/>
+#====================================#====================================
+
+Remember the port number is 10003.
+
+6) Now go to this location: /etc/apache2/conf.d/userdata/std/2/user-name/your-domain-name/ [if you are not able to see the folder file then crate it by using below command]
+
+Mydomain : "demotomcat.tk" & Myusename: "demotomcat" check your and replace in your case
+
+#====================================#====================================
+#mkdir -p /etc/apache2/conf.d/userdata/std/2_4/demotomcat/demotomcat.tk/
+#toch /etc/apache2/conf.d/userdata/std/2_4/demotomcat/demotomcat.tk/demotomcat.conf
+#nano demotomcat.conf
+#====================================#====================================
+
+Write the below code:
+
+#====================================#====================================
+<IfModule proxy_ajp_module>
+ProxyPass "/" "ajp://127.0.0.1:10003/"
+</IfModule>
+#====================================#====================================
+Finally, save it.
+
+8) Now you need to rebuild the HTTPD, so use the below command
+#====================================#====================================
+/usr/local/cpanel/scripts/rebuildhttpdconf
+#====================================#====================================
+
+And now restart the HTTPD by using the below command:
+
+#====================================#====================================
+/usr/local/cpanel/scripts/restartsrv_httpd
+#====================================#====================================
+
+9) Go to /home/demotomcat/ea-tomcat85/conf/ directory again and append below line in yuor server.xmpl and please append this under the parameter <Host></Host>.
+
+Informaive: this is the path where you can modifiy the same as per your convevence for uploading the jsp application.
+
+#====================================#====================================
+<Context path="/" docBase="/home/demotomcat/ea-tomcat85/webapps/ROOT/"></Context>
+#====================================#====================================
+
+10) Finally restart the tomcat server using command  [/scripts/ea-tomcat85 all restart ]
+
+#====================================#====================================
+/scripts/ea-tomcat85 all restart
+#====================================#====================================
